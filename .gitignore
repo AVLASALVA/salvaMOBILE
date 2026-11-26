@@ -1,0 +1,12 @@
+usuarios/
+*.exe
+.vscode/
+dist_build/
+__pycache__/
+*.pyc
+
+nul
+build/
+servidor/build/
+build/
+servidor/build/

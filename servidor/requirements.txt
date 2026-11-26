@@ -1,0 +1,8 @@
+anthropic
+pillow
+keyboard
+mss
+supabase
+pyinstaller
+pysocks
+

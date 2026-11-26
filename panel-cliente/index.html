@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panel de Clientes - Sistema de Vibraciones</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Optimización para iOS (Safari) - PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Salva">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div id="login-screen" class="screen">
+        <div class="login-container">
+            <div class="logo">
+                <div class="vibration-icon">ðŸ“³</div>
+                <h1>Salva</h1>
+                <p>Sistema de Vibraciones</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" required placeholder="Ingresa tu usuario" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">ContraseÃ±a</label>
+                    <input type="password" id="password" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password">
+                </div>
+                <div id="login-message" class="message"></div>
+                <button type="submit" class="btn btn-primary">Iniciar SesiÃ³n</button>
+            </form>
+            <p class="info-text">
+                Ingresa las credenciales proporcionadas por el administrador.
+            </p>
+        </div>
+    </div>
+
+    <!-- Panel Principal -->
+    <div id="main-screen" class="screen hidden">
+        <header class="main-header">
+            <div class="header-left">
+                <div class="vibration-icon-small">ðŸ“³</div>
+                <h1>Salva</h1>
+            </div>
+            <div class="header-right">
+                <span id="user-display" class="user-display"></span>
+                <button id="logout-btn" class="btn btn-secondary btn-small">Cerrar SesiÃ³n</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Botón Bloqueo Estilo Netflix (Destacado) -->
+            <div class="lock-banner-card">
+                <div class="lock-banner-info">
+                    <h3>🔒 Bloqueo Antitoques (Estilo Netflix)</h3>
+                    <p>Bloquea la pantalla para que nada se mueva ni se cierre en el bolsillo. Sigue vibrando fuerte.</p>
+                </div>
+                <button id="btn-lock-screen" class="btn-lock-netflix">
+                    <span class="lock-icon">🔒</span>
+                    <span>Bloquear Pantalla</span>
+                </button>
+            </div>
+
+            <!-- Modo iPhone (Telegram) -->
+            <div id="iphone-banner-card" class="iphone-banner-card">
+                <div class="iphone-banner-info">
+                    <h3>📱 ¿Usas iPhone?</h3>
+                    <p>En iOS Apple bloquea la vibración web. Vincula tu cuenta con nuestro Bot de Telegram en 1 toque para que tu iPhone vibre con el motor háptico.</p>
+                </div>
+                <div id="iphone-link-container">
+                    <a id="btn-vincular-telegram" href="#" target="_blank" class="btn-telegram-link">
+                        <span>📲 Activar Vibraciones en iPhone</span>
+                    </a>
+                    <span id="iphone-status-badge" class="badge-telegram hidden">✅ iPhone Vinculado</span>
+                </div>
+            </div>
+
+            <!-- Estado de ConexiÃ³n -->
+            <div class="connection-card">
+                <div class="connection-status">
+                    <div id="status-icon" class="status-icon connecting"></div>
+                    <div class="status-text">
+                        <h3 id="status-title">Conectando...</h3>
+                        <p id="status-detail">Estableciendo conexiÃ³n con el servidor</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temporizador de Licencia -->
+            <div class="license-timer-card">
+                <div class="timer-header">
+                    <span>â±ï¸</span>
+                    <span>Tiempo Restante de Licencia:</span>
+                </div>
+                <div id="license-countdown" class="license-countdown">
+                    Calculando...
+                </div>
+            </div>
+
+            <!-- VibraciÃ³n Recibida -->
+            <div class="vibration-display">
+                <h2>Ãšltima VibraciÃ³n</h2>
+                <div id="vibration-letter" class="vibration-letter">â€”</div>
+                <p id="vibration-time" class="vibration-time">Esperando vibraciÃ³n...</p>
+            </div>
+
+            <!-- Botones de Prueba RÃ¡pida de VibraciÃ³n (0.8s) -->
+            <div class="test-card">
+                <h3>âš¡ Probar VibraciÃ³n Fuerte (0.8s)</h3>
+                <p class="test-subtitle">Prueba los pulsos de 0.8s a mÃ¡xima fuerza en tu celular</p>
+                <div class="test-buttons-grid">
+                    <button class="test-btn" onclick="probarVibracion('A')">
+                        <strong>A</strong>
+                        <small>1 pulso</small>
+                    </button>
+                    <button class="test-btn" onclick="probarVibracion('B')">
+                        <strong>B</strong>
+                        <small>2 pulsos</small>
+                    </button>
+                    <button class="test-btn" onclick="probarVibracion('C')">
+                        <strong>C</strong>
+                        <small>3 pulsos</small>
+                    </button>
+                    <button class="test-btn" onclick="probarVibracion('D')">
+                        <strong>D</strong>
+                        <small>4 pulsos</small>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Aviso para usuarios de iPhone -->
+            <div id="ios-install-banner" class="ios-install-banner hidden">
+                <div class="ios-install-content">
+                    <h3>ðŸ“± iPhone: Instala la app para vibrar</h3>
+                    <p>Para que tu iPhone vibre, instala esta web como aplicaciÃ³n:</p>
+                    <ol>
+                        <li>Toca el botÃ³n <strong>Compartir</strong> en Safari (icono â¬†ï¸)</li>
+                        <li>Selecciona <strong>"AÃ±adir a pantalla de inicio"</strong></li>
+                        <li>Abre la app desde el icono en tu pantalla</li>
+                    </ol>
+                    <button id="ios-install-close" class="ios-install-close">âœ Entendido</button>
+                </div>
+            </div>
+
+            <!-- InformaciÃ³n del Usuario -->
+            <div class="user-info-card">
+                <h3>InformaciÃ³n de tu Cuenta</h3>
+                <div class="info-row">
+                    <span class="info-label">Usuario:</span>
+                    <span id="info-username" class="info-value">â€”</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Plan:</span>
+                    <span id="info-plan" class="info-value">â€”</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Expira:</span>
+                    <span id="info-expiration" class="info-value">â€”</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tiempo Restante:</span>
+                    <span id="info-time-left" class="info-value timer-highlight">â€”</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Estado:</span>
+                    <span id="info-status" class="info-value">â€”</span>
+                </div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="instructions-card">
+                <h3>Â¿CÃ³mo funciona?</h3>
+                <ol>
+                    <li>Pulsa <strong>Bloquear Pantalla</strong> para meter el celular al bolsillo sin riesgo de toques accidentales.</li>
+                    <li>Cada vibraciÃ³n dura <strong>0.8 segundos</strong> continuos con pausa de 0.8s para contarlas fÃ¡cilmente.</li>
+                    <li>1 vibraciÃ³n = A, 2 vibraciones = B, 3 vibraciones = C, 4 vibraciones = D.</li>
+                </ol>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de VibraciÃ³n Flotante -->
+    <div id="vibration-modal" class="modal hidden">
+        <div class="vibration-modal-content">
+            <div id="vibration-animation" class="vibration-animation">
+                <div class="vibration-circle"></div>
+            </div>
+            <h2 id="vibration-modal-letter">A</h2>
+            <p id="vibration-modal-count">1 vibraciÃ³n</p>
+        </div>
+    </div>
+
+    <!-- PANTALLA BLOQUEADA ESTILO NETFLIX (Overlay Completo) -->
+    <div id="netflix-lock-overlay" class="netflix-lock-overlay hidden">
+        <!-- Letra tenue de Ãºltima opciÃ³n recibida (modo sigilo) -->
+        <div id="lock-stealth-letter" class="lock-stealth-letter">â€”</div>
+
+        <div class="lock-center-container">
+            <!-- Candado interactivo -->
+            <div id="lock-bubble" class="lock-bubble">
+                <span id="lock-icon" class="lock-icon-svg">ðŸ”’</span>
+            </div>
+            <p id="lock-status-text" class="lock-status-text">Pantalla bloqueada</p>
+            
+            <!-- BotÃ³n de ConfirmaciÃ³n para Desbloquear -->
+            <button id="lock-confirm-btn" class="lock-confirm-btn hidden">
+                ðŸ”“ Confirmar Desbloqueo
+            </button>
+        </div>
+
+        <div class="lock-footer-hint" id="lock-footer-hint">
+            Toca la pantalla para activar el candado
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

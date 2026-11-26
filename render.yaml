@@ -1,0 +1,9 @@
+services:
+  - type: worker
+    name: salva-iphone-bot
+    env: python
+    buildCommand: "echo 'No dependencies needed'"
+    startCommand: "python servidor/telegram_bot.py"
+    plan: free
+    autoDeploy: true
+

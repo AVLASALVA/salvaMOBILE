@@ -1,55 +1,9 @@
 // Configuración de Supabase
-const SUPABASE_URL = "https://lcrctcaogoyimtjmdqzu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_gQeoJvYho2FGdOX-JqXJlQ_6qJDzxV-";
+const SUPABASE_URL = "https://evktqhhiqxsnybynbtds.supabase.co";
+const SUPABASE_KEY = "sb_publishable_jWiY7-nyFZneZYpBPNrDDg_XO3u3MbY";
 
 // Tiempo máximo de inactividad sin recibir vibraciones: 2 horas (en milisegundos)
 const TIEMPO_MAX_INACTIVIDAD_MS = 2 * 60 * 60 * 1000; // 2 horas (7,200,000 ms)
-
-// ============================================================
-// REGISTRAR SERVICE WORKER (PWA - Requisito para iPhone)
-// ============================================================
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker Registrado con éxito'))
-        .catch((err) => console.log('Error al registrar Service Worker', err));
-}
-
-// ============================================================
-// DETECCIÓN DE iOS y BANNER DE INSTALACIÓN PWA
-// ============================================================
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-// Mostrar banner de instalación para iPhone si no está instalado como PWA
-function mostrarBannerIOS() {
-    if (!isIOS) return;
-
-    // Verificar si ya está en modo standalone (instalado como PWA)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-        || window.navigator.standalone === true;
-
-    if (!isStandalone) {
-        const banner = document.getElementById('ios-install-banner');
-        if (banner) {
-            banner.classList.remove('hidden');
-
-            // Cerrar banner al hacer clic en el botón
-            const closeBtn = document.getElementById('ios-install-close');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    banner.classList.add('hidden');
-                    localStorage.setItem('ios-banner-dismissed', 'true');
-                });
-            }
-        }
-    }
-}
-
-// Verificar si el usuario ya cerró el banner anteriormente
-if (localStorage.getItem('ios-banner-dismissed') !== 'true') {
-    // Mostrar banner después de 2 segundos
-    setTimeout(mostrarBannerIOS, 2000);
-}
 
 // Inicializar Supabase
 let supabaseClient;
@@ -153,8 +107,7 @@ function limpiarSesion() {
 // ============================================================
 // DETECCIÓN DE iOS (Safari no soporta navigator.vibrate)
 // ============================================================
-// La variable isIOS ya está declarada al inicio del archivo (línea 20)
-// con detección mejorada que incluye iPad Pro con touch
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 // AudioContext compartido (se crea la primera vez que el usuario interactúa)
 let _audioCtx = null;
@@ -196,7 +149,7 @@ function playBeep(frequency = 880, duration = 0.08) {
 }
 
 // ============================================================
-// MOTOR DE VIBRACIÓN (Android vibra, iPhone vibra si es PWA)
+// MOTOR DE VIBRACIÓN / AUDIO (Android vibra, iPhone pita)
 // ============================================================
 let isVibrating = false;
 
@@ -207,49 +160,27 @@ async function triggerVibration(count) {
     }
     isVibrating = true;
 
-    try {
-        // Verificar si estamos en modo PWA (instalado como app)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-            || window.navigator.standalone === true;
-
-        if (!isIOS && navigator.vibrate) {
-            // --- Android: vibración física normal ---
-            for (let i = 0; i < count; i++) {
-                try { navigator.vibrate(800); } catch (e) {}
-                if (i < count - 1) {
-                    await new Promise(r => setTimeout(r, 1600));
-                } else {
-                    await new Promise(r => setTimeout(r, 800));
-                }
-            }
-        } else if (isIOS && navigator.vibrate) {
-            // --- iPhone: vibración física (si el dispositivo la soporta) ---
-            // Usar pulsos más cortos para mejor respuesta en iPhone
-            for (let i = 0; i < count; i++) {
-                try { navigator.vibrate([200, 50, 200]); } catch (e) {}
-                if (i < count - 1) {
-                    await new Promise(r => setTimeout(r, 800));
-                } else {
-                    await new Promise(r => setTimeout(r, 400));
-                }
-            }
-        } else if (isIOS) {
-            // --- iPhone sin soporte de vibración: no hacer nada (silencio) ---
-            // No hacemos sonido porque el usuario solo quiere vibración
-        } else {
-            // --- Otros dispositivos con vibración ---
-            for (let i = 0; i < count; i++) {
-                try { navigator.vibrate(800); } catch (e) {}
-                if (i < count - 1) {
-                    await new Promise(r => setTimeout(r, 1600));
-                } else {
-                    await new Promise(r => setTimeout(r, 800));
-                }
+    if (!isIOS && navigator.vibrate) {
+        // --- Android: vibración física ---
+        for (let i = 0; i < count; i++) {
+            try { navigator.vibrate(800); } catch (e) {}
+            if (i < count - 1) {
+                await new Promise(r => setTimeout(r, 1600));
+            } else {
+                await new Promise(r => setTimeout(r, 800));
             }
         }
-    } finally {
-        isVibrating = false;
+    } else {
+        // --- iOS / sin vibración: pitidos de audio ---
+        for (let i = 0; i < count; i++) {
+            await playBeep(880, 0.12);
+            if (i < count - 1) {
+                await new Promise(r => setTimeout(r, 350));
+            }
+        }
     }
+
+    isVibrating = false;
 }
 
 // Obtener número de vibraciones por letra
@@ -280,7 +211,7 @@ async function authenticateUser(username, password) {
         const response = await supabaseClient.rpc('autenticar_usuario_app', {
             p_usuario: username,
             p_password: password,
-            p_device_id: getDeviceId(),
+            p_device_id: null,
             p_origen: 'web'
         });
 
@@ -394,6 +325,29 @@ function updateUserInfo() {
 
     refrescarEstadoVisual();
     iniciarTemporizadorLicencia();
+
+    // Configurar enlace de iPhone con Telegram
+    const btnVincularTelegram = document.getElementById('btn-vincular-telegram');
+    const badgeTelegram = document.getElementById('iphone-status-badge');
+    const TELEGRAM_BOT_USERNAME = window.TELEGRAM_BOT_USERNAME || 'salva_notif_bot';
+
+    if (btnVincularTelegram && userData.usuario) {
+        btnVincularTelegram.href = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${encodeURIComponent(userData.usuario)}`;
+    }
+
+    if (userData.telegram_chat_id) {
+        if (badgeTelegram) badgeTelegram.classList.remove('hidden');
+        if (btnVincularTelegram) {
+            btnVincularTelegram.innerHTML = '<span>🔄 Reconectar iPhone</span>';
+            btnVincularTelegram.style.background = '#475569';
+        }
+    } else {
+        if (badgeTelegram) badgeTelegram.classList.add('hidden');
+        if (btnVincularTelegram) {
+            btnVincularTelegram.innerHTML = '<span>📲 Activar Vibraciones en iPhone</span>';
+            btnVincularTelegram.style.background = '';
+        }
+    }
 }
 
 function refrescarEstadoVisual() {

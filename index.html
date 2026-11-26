@@ -6,15 +6,6 @@
     <title>Panel de Clientes - Sistema de Vibraciones</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
-
-    <!-- Optimización para iOS (Safari) - PWA -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Salva">
-    <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
     <!-- Pantalla de Login -->
@@ -57,16 +48,30 @@
         </header>
 
         <main class="main-content">
-            <!-- BotÃ³n Bloqueo Estilo Netflix (Destacado) -->
+            <!-- Botón Bloqueo Estilo Netflix (Destacado) -->
             <div class="lock-banner-card">
                 <div class="lock-banner-info">
-                    <h3>ðŸ”’ Bloqueo Antitoques (Estilo Netflix)</h3>
+                    <h3>🔒 Bloqueo Antitoques (Estilo Netflix)</h3>
                     <p>Bloquea la pantalla para que nada se mueva ni se cierre en el bolsillo. Sigue vibrando fuerte.</p>
                 </div>
                 <button id="btn-lock-screen" class="btn-lock-netflix">
-                    <span class="lock-icon">ðŸ”’</span>
+                    <span class="lock-icon">🔒</span>
                     <span>Bloquear Pantalla</span>
                 </button>
+            </div>
+
+            <!-- Modo iPhone (Telegram) -->
+            <div id="iphone-banner-card" class="iphone-banner-card">
+                <div class="iphone-banner-info">
+                    <h3>📱 ¿Usas iPhone?</h3>
+                    <p>En iOS Apple bloquea la vibración web. Vincula tu cuenta con nuestro Bot de Telegram en 1 toque para que tu iPhone vibre con el motor háptico.</p>
+                </div>
+                <div id="iphone-link-container">
+                    <a id="btn-vincular-telegram" href="#" target="_blank" class="btn-telegram-link">
+                        <span>📲 Activar Vibraciones en iPhone</span>
+                    </a>
+                    <span id="iphone-status-badge" class="badge-telegram hidden">✅ iPhone Vinculado</span>
+                </div>
             </div>
 
             <!-- Estado de ConexiÃ³n -->
@@ -119,20 +124,6 @@
                         <strong>D</strong>
                         <small>4 pulsos</small>
                     </button>
-                </div>
-            </div>
-
-            <!-- Aviso para usuarios de iPhone -->
-            <div id="ios-install-banner" class="ios-install-banner hidden">
-                <div class="ios-install-content">
-                    <h3>ðŸ“± iPhone: Instala la app para vibrar</h3>
-                    <p>Para que tu iPhone vibre, instala esta web como aplicaciÃ³n:</p>
-                    <ol>
-                        <li>Toca el botÃ³n <strong>Compartir</strong> en Safari (icono â¬†ï¸)</li>
-                        <li>Selecciona <strong>"AÃ±adir a pantalla de inicio"</strong></li>
-                        <li>Abre la app desde el icono en tu pantalla</li>
-                    </ol>
-                    <button id="ios-install-close" class="ios-install-close">âœ Entendido</button>
                 </div>
             </div>
 
