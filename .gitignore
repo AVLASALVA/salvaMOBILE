@@ -1,12 +1,23 @@
+# Archivos y carpetas locales (no pertenecen al repo salvaMOBILE)
+panel-admin/
+servidor/
+sql/
+No borrar/
 usuarios/
-*.exe
+docs/
 .vscode/
-dist_build/
 __pycache__/
+*.py
 *.pyc
-
+*.bat
+*.exe
+Procfile
+render.yaml
+sesiones_telegram.json
+CONTINUACION.md
+README.md
+Logo.png
+unnamed.png
 nul
 build/
-servidor/build/
-build/
-servidor/build/
+dist_build/
